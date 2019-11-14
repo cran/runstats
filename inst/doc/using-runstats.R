@@ -7,7 +7,8 @@ knitr::opts_chunk$set(
 )
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  devtools::install_github("martakarass/runstats")
+#  # devtools::install_github("martakarass/runstats")
+#  install.packages("runstats")
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  library(runstats)
@@ -59,11 +60,11 @@ library(ggplot2)
 
 ## ---- echo = FALSE, eval = FALSE-----------------------------------------
 #  
-#  out.df.path <- "../inst/benchmark_results/2018-12-17-performance_rbenchmark_suite1.csv"
+#  out.df.path <- "../inst/benchmark_results/2019-11-14-performance_rbenchmark_suite1.csv"
 #  write.csv(out.df, out.df.path, row.names = FALSE, quote = FALSE)
 
 ## ---- echo = FALSE, eval = TRUE------------------------------------------
-out.df.path <- "../inst/benchmark_results/2018-12-17-performance_rbenchmark_suite1.csv"
+out.df.path <- "../inst/benchmark_results/2019-11-14-performance_rbenchmark_suite1.csv"
 out.df <- read.csv(out.df.path)
 options("scipen" = 10, "digits" = 4)
 
@@ -95,11 +96,11 @@ knitr::kable(out.df)
 #  
 
 ## ---- echo = FALSE, eval = FALSE-----------------------------------------
-#  out.df.path <-"../inst/benchmark_results/2018-12-17-performance_rbenchmark_suite2.csv"
+#  out.df.path <-"../inst/benchmark_results/2019-11-14-performance_rbenchmark_suite2.csv"
 #  write.csv(out.df2, out.df.path, row.names = FALSE, quote = FALSE)
 
 ## ---- echo = FALSE, eval = TRUE------------------------------------------
-out.df.path <- "../inst/benchmark_results/2018-12-17-performance_rbenchmark_suite2.csv"
+out.df.path <- "../inst/benchmark_results/2019-11-14-performance_rbenchmark_suite2.csv"
 out.df2 <- read.csv(out.df.path)
 
 ## ---- fig.width=10, fig.height=5-----------------------------------------

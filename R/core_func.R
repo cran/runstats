@@ -1,6 +1,4 @@
 
-
-
 #' @title
 #' Fast Sequences Convolution
 #'
@@ -27,24 +25,39 @@
 #' @param x numeric sequence
 #' @param y numeric sequence, of equal or shorter length than  \code{x} sequence
 #'
+#' @importFrom fftwtools fftw
+#'
 #' @return numeric sequence
 #'
 #' @noRd
 #'
 convJU <- function(x, y){
 
-  N1 <- length(x)
-  N2 <- length(y)
+  nx <- length(x)
+  ny <- length(y)
 
-  y0 <- append(y, rep(0, N1 - N2))
-
-  out <- convolve(x, y0)
-  out <- out[1:N1]
+  y_app <- c(y, rep(0, nx - ny))
+  out   <- Re(fftw(fftw(x) * Conj(fftw(y_app)), inverse = 1))/nx
 
   return(out)
 }
 
 
+
+#' Title
+#'
+#' @param x
+#' @param W
+#'
+#' @return
+#'
+#' @noRd
+#'
+runningSum <- function(x, W){
+  x_ext <- c(x, x[1:(W-1)])
+  x_runningSum <- diff(c(0, cumsum(x_ext)), lag = W)
+  return(x_runningSum)
+}
 
 
 
@@ -93,17 +106,26 @@ RunningMean <- function(x, W, circular = FALSE){
 
   if (W > length(x)) stop("W must be smaller or equal to the length of x")
 
-  ## constant value=1 segment
-  win <- rep(1, W)
+  # ## constant value=1 segment
+  # win <- rep(1, W)
+  #
+  # ## mean of x (running mean)
+  # meanx <- convJU(x, win)/W
+  #
+  # ## trim outout tail if not circular
+  # if (!circular){
+  #   meanx[(length(x) - W + 2) : length(x)] <- NA
+  # }
 
-  ## mean of x (running mean)
-  meanx <- convJU(x, win)/W
+  meanx <- runningSum(x, W)/W
 
-  ## trim outout tail if not circular
-  if (!circular) meanx[(length(x) - W + 2) : length(x)] <- NA
+  if (!circular){
+    meanx[(length(x) - W + 2) : length(x)] <- NA
+  }
 
   return(meanx)
 }
+
 
 
 
@@ -152,15 +174,17 @@ RunningVar <- function(x, W, circular = FALSE){
 
   if (W > length(x)) stop("W must be smaller or equal to the length of x")
 
-  ## constant value=1 segment
-  win <- rep(1, W)
+  # ## constant value=1 segment
+  # win <- rep(1, W)
+  #
+  # # unbiased estimator of variance given as
+  # # S^2 = \frac{\sum X^2 - \frac{(\sum X)^2}{N}}{N-1}
+  # sigmax2 <- (convJU(x^2, win) - ((convJU(x, win))^2)/W)/(W - 1)
+  #
+  # ## correct numerical errors, if any
+  # sigmax2[sigmax2 < 0] <- 0
 
-  # unbiased estimator of variance given as
-  # S^2 = \frac{\sum X^2 - \frac{(\sum X)^2}{N}}{N-1}
-  sigmax2 <- (convJU(x^2, win) - ((convJU(x, win))^2)/W)/(W - 1)
-
-  ## correct numerical errors, if any
-  sigmax2[sigmax2 < 0] <- 0
+  sigmax2 <- (runningSum(x^2, W) - ((runningSum(x, W))^2)/W)/(W - 1)
 
   if (!circular) sigmax2[(length(x) - W + 2) : length(x)] <- NA
 
@@ -278,7 +302,8 @@ RunningCov = function(x, y, circular = FALSE){
   win <- rep(1, W)
 
   ## mean of x (running mean), mean of y
-  meanx <- convJU(x, win)/W
+  # meanx <- convJU(x, win)/W
+  meanx <- RunningMean(x, W, circular = TRUE)
   meany <- mean(y)
 
   ## unbiased estimator of sample covariance
